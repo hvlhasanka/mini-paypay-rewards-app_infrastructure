@@ -23,6 +23,7 @@ const REWARDS = [
     stockRemaining: 12,
     isActive: true,
     category: 'lifestyle',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/1.pro-sound-headphones.png',
   },
   {
     name: 'Zen Spa Escape',
@@ -31,6 +32,7 @@ const REWARDS = [
     stockRemaining: 5,
     isActive: true,
     category: 'lifestyle',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/2.zen-spa-escape.png',
   },
   {
     name: 'First Class Upgrade',
@@ -39,6 +41,7 @@ const REWARDS = [
     stockRemaining: 2,
     isActive: true,
     category: 'travel',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/3.first-class-upgrade.png',
   },
   {
     name: 'Vanguard Timepiece',
@@ -47,6 +50,7 @@ const REWARDS = [
     stockRemaining: 1,
     isActive: true,
     category: 'lifestyle',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/4.vanguard-timepiece.png',
   },
   {
     name: 'Gourmet Box',
@@ -55,6 +59,7 @@ const REWARDS = [
     stockRemaining: 13,
     isActive: true,
     category: 'lifestyle',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/5.gourment-box.png',
   },
   {
     name: 'Vault VR System',
@@ -63,6 +68,7 @@ const REWARDS = [
     stockRemaining: 0,
     isActive: true,
     category: 'lifestyle',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/6.vault-box-system.png',
   },
 ];
 
@@ -100,6 +106,8 @@ function seededRandom(seed: number): () => number {
   };
 }
 
+const TARGET_BALANCE = 24850;
+
 function buildEntries(userId: string, seed: number) {
   const rand = seededRandom(seed);
   const entries: {
@@ -113,7 +121,8 @@ function buildEntries(userId: string, seed: number) {
 
   const total = 18;
   const now = Date.now();
-  for (let i = 0; i < total; i++) {
+
+  for (let i = 1; i < total; i++) {
     const t = TEMPLATES[Math.floor(rand() * TEMPLATES.length)]!;
     const magnitude = Math.floor(rand() * (t.max - t.min)) + t.min;
     const daysAgo = total - i;
@@ -126,6 +135,16 @@ function buildEntries(userId: string, seed: number) {
       createdAt: new Date(now - daysAgo * 24 * 60 * 60 * 1000),
     });
   }
+
+  const sumSoFar = entries.reduce((acc, e) => acc + e.delta, 0);
+  entries.unshift({
+    userId,
+    delta: TARGET_BALANCE - sumSoFar,
+    reason: 'Welcome Bonus',
+    category: 'reward',
+    source: 'Onboarding',
+    createdAt: new Date(now - total * 24 * 60 * 60 * 1000),
+  });
   return entries;
 }
 
