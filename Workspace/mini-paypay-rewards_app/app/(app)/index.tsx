@@ -1,3 +1,4 @@
+import { useHeaderHeight } from '@react-navigation/elements';
 import * as Haptics from 'expo-haptics';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -6,6 +7,7 @@ import { useAppDispatch } from '@/store/hooks';
 
 export default function HomeScreen() {
   const dispatch = useAppDispatch();
+  const headerHeight = useHeaderHeight();
 
   const handleLogout = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -13,7 +15,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: headerHeight + 32 }]}>
       <Text style={styles.title}>Home</Text>
       <Pressable style={styles.button} onPress={handleLogout}>
         <Text style={styles.buttonText}>Log out</Text>
@@ -42,7 +44,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#00003C',
     paddingHorizontal: 32,
     paddingVertical: 14,
-    borderRadius: 9999,
+    borderRadius: 50,
   },
   buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
 });

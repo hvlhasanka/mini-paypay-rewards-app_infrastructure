@@ -43,13 +43,13 @@ async function getFreshToken(): Promise<string | null> {
   const stored = await tokenStorage.get();
   if (!stored) return null;
 
-  if (!tokenStorage.isExpired(stored, REFRESH_SKEW_MS)) {
-    return stored.token;
-  }
-
   if (tokenStorage.isExpired(stored)) {
     await tokenStorage.clear();
     return null;
+  }
+
+  if (!tokenStorage.isExpired(stored, REFRESH_SKEW_MS)) {
+    return stored.token;
   }
 
   if (!refreshing) {
@@ -61,9 +61,6 @@ async function getFreshToken(): Promise<string | null> {
 }
 
 api.interceptors.request.use(async (config) => {
-  const skipAuth = (config as { skipAuth?: boolean }).skipAuth;
-  if (skipAuth) return config;
-
   const token = await getFreshToken();
   if (token) {
     config.headers = config.headers ?? {};

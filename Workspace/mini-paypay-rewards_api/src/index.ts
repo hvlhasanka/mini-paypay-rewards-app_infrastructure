@@ -3,6 +3,7 @@ import cors from 'cors';
 import { env } from './lib/env.js';
 import authRouter from './routes/auth.js';
 import rewardsRouter from './routes/rewards.js';
+import usersRouter from './routes/users.js';
 
 const app = express();
 
@@ -14,6 +15,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 app.use('/rewards', rewardsRouter);
 
 app.listen(env.port, () => {

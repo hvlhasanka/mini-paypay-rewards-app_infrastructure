@@ -107,6 +107,8 @@ function seededRandom(seed: number): () => number {
 }
 
 const TARGET_BALANCE = 24850;
+const MILESTONE_DELTA = 500;
+const SIGNUP_BONUS_DELTA = 50;
 
 function buildEntries(userId: string, seed: number) {
   const rand = seededRandom(seed);
@@ -119,13 +121,14 @@ function buildEntries(userId: string, seed: number) {
     createdAt: Date;
   }[] = [];
 
-  const total = 18;
+  const randomCount = 23;
+  const milestonePosition = 20;
   const now = Date.now();
 
-  for (let i = 1; i < total; i++) {
+  for (let i = 0; i < randomCount; i++) {
     const t = TEMPLATES[Math.floor(rand() * TEMPLATES.length)]!;
     const magnitude = Math.floor(rand() * (t.max - t.min)) + t.min;
-    const daysAgo = total - i;
+    const daysAgo = i < milestonePosition - 1 ? i + 1 : i + 2;
     entries.push({
       userId,
       delta: t.earn ? magnitude : -magnitude,
@@ -136,15 +139,28 @@ function buildEntries(userId: string, seed: number) {
     });
   }
 
-  const sumSoFar = entries.reduce((acc, e) => acc + e.delta, 0);
-  entries.unshift({
+  entries.push({
     userId,
-    delta: TARGET_BALANCE - sumSoFar,
-    reason: 'Welcome Bonus',
+    delta: MILESTONE_DELTA,
+    reason: 'Referral Platinum Bonus',
+    category: 'reward',
+    source: '5 users successfully onboarded',
+    createdAt: new Date(now - milestonePosition * 24 * 60 * 60 * 1000),
+  });
+
+  entries.push({
+    userId,
+    delta: SIGNUP_BONUS_DELTA,
+    reason: 'Signup Bonus',
     category: 'reward',
     source: 'Onboarding',
-    createdAt: new Date(now - total * 24 * 60 * 60 * 1000),
+    createdAt: new Date(now - (randomCount + 2) * 24 * 60 * 60 * 1000),
   });
+
+  const sumSoFar = entries.reduce((acc, e) => acc + e.delta, 0);
+  const diff = TARGET_BALANCE - sumSoFar;
+  entries[randomCount - 1]!.delta += diff;
+
   return entries;
 }
 
