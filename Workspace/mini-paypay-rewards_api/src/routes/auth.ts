@@ -51,6 +51,14 @@ router.get('/me', requireAuth, async (req: Request, res: Response) => {
   res.json({ user });
 });
 
+router.get('/balance', requireAuth, async (req: Request, res: Response) => {
+  const result = await prisma.pointLedger.aggregate({
+    where: { userId: req.user!.sub },
+    _sum: { delta: true },
+  });
+  res.json({ balance: result._sum.delta ?? 0 });
+});
+
 router.post('/refresh', requireAuth, async (req: Request, res: Response) => {
   const user = await prisma.user.findUnique({
     where: { id: req.user!.sub },

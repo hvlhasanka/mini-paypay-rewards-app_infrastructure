@@ -27,13 +27,17 @@ export default function ProfileHeader() {
 }
 
 const styles = StyleSheet.create({
-  safe: { backgroundColor: '#FFFFFF' },
+  safe: {
+    backgroundColor: '#FFFFFF',
+    boxShadow: '0px 20px 40px 0px #1B1B220F',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingTop: 4,
+    paddingBottom: 16,
   },
   avatar: {
     width: 44,
