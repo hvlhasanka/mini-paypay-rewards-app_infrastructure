@@ -9,6 +9,7 @@ export default function AppLayout() {
     <Tabs
       screenOptions={{
         header: () => <ProfileHeader />,
+        headerTransparent: true,
         sceneStyle: { backgroundColor: '#FBF8FF' },
         tabBarActiveTintColor: '#00003C',
         tabBarInactiveTintColor: '#64748B',
@@ -26,7 +27,7 @@ export default function AppLayout() {
           />
         ),
         tabBarStyle: {
-          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+          backgroundColor: '#ffffffb3',
           height: 92,
           paddingTop: 8,
           paddingBottom: 24,
@@ -38,7 +39,7 @@ export default function AppLayout() {
         },
         tabBarItemStyle: {
           marginHorizontal: 8,
-          borderRadius: 9999,
+          borderRadius: 50,
           overflow: 'hidden',
         },
         tabBarLabelStyle: {

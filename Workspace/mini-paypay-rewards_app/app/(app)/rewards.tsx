@@ -1,3 +1,4 @@
+import { useHeaderHeight } from '@react-navigation/elements';
 import { BlurView } from 'expo-blur';
 import { useEffect, useRef, useState } from 'react';
 import {
@@ -195,7 +196,9 @@ function RewardCard({ reward, balance }: { reward: Reward; balance: number }) {
 
 export default function RewardsScreen() {
   const dispatch = useAppDispatch();
-  const { items, balance, category, status, error } = useAppSelector((s) => s.rewards);
+  const { items, category, status, error } = useAppSelector((s) => s.rewards);
+  const balance = useAppSelector((s) => s.auth.balance);
+  const headerHeight = useHeaderHeight();
 
   const isInitialLoad = status === 'loading' && items.length === 0;
 
@@ -251,7 +254,7 @@ export default function RewardsScreen() {
         keyExtractor={(i) => `skeleton-${i}`}
         renderItem={() => <RewardCardSkeleton />}
         ListHeaderComponent={ListHeader}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingTop: headerHeight + 32 }]}
         showsVerticalScrollIndicator={false}
       />
     );
@@ -268,7 +271,7 @@ export default function RewardsScreen() {
           <Text style={styles.emptyText}>No rewards available.</Text>
         </View>
       }
-      contentContainerStyle={styles.listContent}
+      contentContainerStyle={[styles.listContent, { paddingTop: headerHeight + 32 }]}
       showsVerticalScrollIndicator={false}
     />
   );
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFE16D',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 9999,
+    borderRadius: 50,
   },
   eliteTierText: {
     fontFamily: 'Inter',
@@ -373,12 +376,12 @@ const styles = StyleSheet.create({
     height: 32,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 9999,
+    borderRadius: 50,
     backgroundColor: '#FFFFFFE5',
   },
   lockBadgeIcon: { width: 9.33, height: 12.25, tintColor: '#00003C' },
   lockBadgeText: {
-    fontFamily: 'Interd',
+    fontFamily: 'Inter',
     fontWeight: '700',
     fontSize: 12,
     lineHeight: 16,
@@ -396,7 +399,7 @@ const styles = StyleSheet.create({
     height: 34,
     paddingHorizontal: 16,
     paddingVertical: 8,
-    borderRadius: 9999,
+    borderRadius: 50,
     backgroundColor: '#FFFFFFE5',
     borderWidth: 1,
     borderColor: '#C6C5D5',
@@ -473,7 +476,7 @@ const styles = StyleSheet.create({
     height: 44,
     paddingHorizontal: 24,
     paddingVertical: 12,
-    borderRadius: 9999,
+    borderRadius: 50,
     backgroundColor: '#00003C',
     alignItems: 'center',
     justifyContent: 'center',

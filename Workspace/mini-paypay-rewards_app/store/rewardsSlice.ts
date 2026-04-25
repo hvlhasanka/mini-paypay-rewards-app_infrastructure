@@ -17,7 +17,6 @@ export type RewardCategory = 'all' | 'lifestyle' | 'travel';
 
 interface RewardsState {
   items: Reward[];
-  balance: number;
   category: RewardCategory;
   status: 'idle' | 'loading';
   error: string | null;
@@ -25,7 +24,6 @@ interface RewardsState {
 
 const initialState: RewardsState = {
   items: [],
-  balance: 0,
   category: 'all',
   status: 'idle',
   error: null,
@@ -41,18 +39,15 @@ function extractError(err: unknown, fallback: string): string {
 }
 
 export const fetchRewards = createAsyncThunk<
-  { rewards: Reward[]; balance: number },
+  { rewards: Reward[] },
   RewardCategory,
   { rejectValue: string }
 >('rewards/fetch', async (category, { rejectWithValue }) => {
   try {
-    const [rewardsRes, balanceRes] = await Promise.all([
-      api.get<{ rewards: Reward[] }>('/rewards', {
-        params: category === 'all' ? {} : { category },
-      }),
-      api.get<{ balance: number }>('/auth/balance'),
-    ]);
-    return { rewards: rewardsRes.data.rewards, balance: balanceRes.data.balance };
+    const { data } = await api.get<{ rewards: Reward[] }>('/rewards', {
+      params: category === 'all' ? {} : { category },
+    });
+    return { rewards: data.rewards };
   } catch (err) {
     return rejectWithValue(extractError(err, 'Failed to load rewards'));
   }
@@ -75,7 +70,6 @@ const rewardsSlice = createSlice({
       .addCase(fetchRewards.fulfilled, (state, action) => {
         state.status = 'idle';
         state.items = action.payload.rewards;
-        state.balance = action.payload.balance;
       })
       .addCase(fetchRewards.rejected, (state, action) => {
         state.status = 'idle';

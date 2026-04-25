@@ -1,3 +1,4 @@
+import { BlurView } from 'expo-blur';
 import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,6 +9,7 @@ export default function ProfileHeader() {
 
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.safe}>
+      <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />
       <View style={styles.row}>
         <Image source={require('@/assets/icons/user.png')} style={styles.avatar} />
         <View style={styles.text}>
@@ -28,7 +30,7 @@ export default function ProfileHeader() {
 
 const styles = StyleSheet.create({
   safe: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#ffffffb3',
     boxShadow: '0px 20px 40px 0px #1B1B220F',
   },
   row: {

@@ -33,30 +33,7 @@ router.post('/login', async (req: Request, res: Response) => {
   }
 
   const token = signToken({ sub: user.id, email: user.email });
-  res.json({
-    user: { id: user.id, email: user.email, name: user.name, createdAt: user.createdAt },
-    token,
-  });
-});
-
-router.get('/me', requireAuth, async (req: Request, res: Response) => {
-  const user = await prisma.user.findUnique({
-    where: { id: req.user!.sub },
-    select: { id: true, email: true, name: true, createdAt: true },
-  });
-  if (!user) {
-    res.status(404).json({ error: 'User not found' });
-    return;
-  }
-  res.json({ user });
-});
-
-router.get('/balance', requireAuth, async (req: Request, res: Response) => {
-  const result = await prisma.pointLedger.aggregate({
-    where: { userId: req.user!.sub },
-    _sum: { delta: true },
-  });
-  res.json({ balance: result._sum.delta ?? 0 });
+  res.json({ token });
 });
 
 router.post('/refresh', requireAuth, async (req: Request, res: Response) => {
