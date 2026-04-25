@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String        @id @default(uuid()) @db.Uuid
+  email        String        @unique
+  name         String
+  passwordHash String        @map("password_hash")
+  pushToken    String?       @map("push_token")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  ledger       PointLedger[]
+  redemptions  Redemption[]
+
+  @@map("users")
+}
+
+model PointLedger {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delta     Int
+  reason    String
+  category  String
+  source    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("point_ledger")
+}
+
+model Reward {
+  id             String       @id @default(uuid()) @db.Uuid
+  name           String
+  description    String
+  imageUrl       String?      @map("image_url")
+  pointsCost     Int          @map("points_cost")
+  stockRemaining Int          @map("stock_remaining")
+  isActive       Boolean      @default(true) @map("is_active")
+  category       String
+  redemptions    Redemption[]
+
+  @@map("rewards")
+}
+
+model Redemption {
+  id             String   @id @default(uuid()) @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewardId       String   @map("reward_id") @db.Uuid
+  reward         Reward   @relation(fields: [rewardId], references: [id], onDelete: Restrict)
+  pointsCost     Int      @map("points_cost")
+  createdAt      DateTime @default(now()) @map("created_at")
+  idempotencyKey String   @unique @map("idempotency_key")
+
+  @@index([userId])
+  @@index([rewardId])
+  @@map("redemptions")
+}
