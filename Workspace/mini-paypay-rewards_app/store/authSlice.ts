@@ -31,9 +31,7 @@ const initialState: AuthState = {
 
 function extractError(err: unknown, fallback: string): string {
   if (axios.isAxiosError(err)) {
-    if (!err.response) {
-      return 'Network error — check your connection and try again.';
-    }
+    if (!err.response) return '';
     const data = err.response.data as { error?: string } | undefined;
     return data?.error ?? fallback;
   }
@@ -84,6 +82,11 @@ export const loginUser = createAsyncThunk<
 export const refreshMe = createAsyncThunk('auth/refreshMe', async () => fetchMe());
 
 export const logout = createAsyncThunk('auth/logout', async () => {
+  try {
+    await api.post('/users/me/push-token', { pushToken: null });
+  } catch (err) {
+    console.error('Failed to clear push token on logout', err);
+  }
   await tokenStorage.clear();
 });
 

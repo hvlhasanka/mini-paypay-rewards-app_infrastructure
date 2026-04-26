@@ -7,9 +7,33 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import 'react-native-reanimated';
 
+import AlertModal from '@/components/alert-modal';
+import OfflineBanner from '@/components/offline-banner';
+import { setNetworkAlertHandler } from '@/services/api';
+import { syncPushTokenToBackend } from '@/services/notifications';
 import { store } from '@/store';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { bootstrapAuth } from '@/store/authSlice';
+import { hideAlert, showAlert } from '@/store/uiSlice';
+
+setNetworkAlertHandler((payload) => {
+  store.dispatch(showAlert(payload));
+});
+
+function GlobalAlert() {
+  const dispatch = useAppDispatch();
+  const alert = useAppSelector((s) => s.ui.alert);
+  return (
+    <AlertModal
+      visible={alert?.visible ?? false}
+      kind={alert?.kind ?? 'error'}
+      title={alert?.title ?? ''}
+      message={alert?.message}
+      actionLabel={alert?.actionLabel}
+      onClose={() => dispatch(hideAlert())}
+    />
+  );
+}
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const dispatch = useAppDispatch();
@@ -30,6 +54,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
       router.replace('/(app)');
     }
   }, [bootstrapped, token, segments, router]);
+
+  useEffect(() => {
+    if (token) {
+      syncPushTokenToBackend();
+    }
+  }, [token]);
 
   if (!bootstrapped) {
     return (
@@ -60,6 +90,7 @@ export default function RootLayout() {
       <SafeAreaProvider style={{ backgroundColor: '#FBF8FF' }}>
         <ThemeProvider value={colorScheme === 'dark' ? AppDarkTheme : AppLightTheme}>
           <AuthGate>
+            <OfflineBanner />
             <Stack
               screenOptions={{
                 headerShown: false,
@@ -69,6 +100,7 @@ export default function RootLayout() {
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(app)" />
             </Stack>
+            <GlobalAlert />
           </AuthGate>
           <StatusBar style="dark" />
         </ThemeProvider>

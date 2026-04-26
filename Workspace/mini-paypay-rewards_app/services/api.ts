@@ -2,6 +2,18 @@ import axios from 'axios';
 import Constants from 'expo-constants';
 import { tokenStorage } from './tokenStorage';
 
+export type NetworkAlertHandler = (payload: {
+  kind: 'error' | 'warning' | 'success';
+  title: string;
+  message?: string;
+  actionLabel?: string;
+}) => void;
+
+let networkAlertHandler: NetworkAlertHandler | null = null;
+export function setNetworkAlertHandler(fn: NetworkAlertHandler | null): void {
+  networkAlertHandler = fn;
+}
+
 const REFRESH_SKEW_MS = 2 * 60 * 1000;
 
 function resolveBaseUrl(): string {
@@ -68,3 +80,20 @@ api.interceptors.request.use(async (config) => {
   }
   return config;
 });
+
+// Surface a global alert when a request fails because of network loss (no response received)
+api.interceptors.response.use(
+  (res) => res,
+  (error) => {
+    if (axios.isAxiosError(error) && !error.response) {
+      networkAlertHandler?.({
+        kind: 'error',
+        title: "You're offline",
+        message:
+          'Check your connection and try again.',
+        actionLabel: 'OK',
+      });
+    }
+    return Promise.reject(error);
+  },
+);

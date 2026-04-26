@@ -23,7 +23,7 @@ const REWARDS = [
     stockRemaining: 12,
     isActive: true,
     category: 'lifestyle',
-    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/1.pro-sound-headphones.png',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/Rewards-1-pro-sound-headphones.png',
   },
   {
     name: 'Zen Spa Escape',
@@ -32,7 +32,7 @@ const REWARDS = [
     stockRemaining: 5,
     isActive: true,
     category: 'lifestyle',
-    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/2.zen-spa-escape.png',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/Rewards-2-zen-spa-escape.png',
   },
   {
     name: 'First Class Upgrade',
@@ -41,7 +41,7 @@ const REWARDS = [
     stockRemaining: 2,
     isActive: true,
     category: 'travel',
-    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/3.first-class-upgrade.png',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/Rewards-3-first-class-upgrade.png',
   },
   {
     name: 'Vanguard Timepiece',
@@ -50,7 +50,7 @@ const REWARDS = [
     stockRemaining: 1,
     isActive: true,
     category: 'lifestyle',
-    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/4.vanguard-timepiece.png',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/Rewards-4-vanguard-timepiece.png',
   },
   {
     name: 'Gourmet Box',
@@ -59,7 +59,7 @@ const REWARDS = [
     stockRemaining: 13,
     isActive: true,
     category: 'lifestyle',
-    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/5.gourment-box.png',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/Rewards-5-gourment-box.png',
   },
   {
     name: 'Vault VR System',
@@ -68,7 +68,7 @@ const REWARDS = [
     stockRemaining: 0,
     isActive: true,
     category: 'lifestyle',
-    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/6.vault-box-system.png',
+    imageUrl: 'https://raw.githubusercontent.com/hvlhasanka/mini-paypay-rewards-app_infrastructure/refs/heads/main/Workspace/mini-pay-pay-records_external-images/Rewards-6-vault-box-system.png',
   },
 ];
 

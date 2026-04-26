@@ -31,7 +31,7 @@ const PAGE_SIZE = 20;
 
 function extractError(err: unknown, fallback: string): string {
   if (axios.isAxiosError(err)) {
-    if (!err.response) return 'Network error — check your connection and try again.';
+    if (!err.response) return '';
     const data = err.response.data as { error?: string } | undefined;
     return data?.error ?? fallback;
   }

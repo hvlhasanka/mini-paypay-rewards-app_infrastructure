@@ -120,7 +120,6 @@ function Skeleton({
 function ActivityRow({ entry }: { entry: LedgerEntry }) {
   const earned = entry.delta >= 0;
   const cat = styleFor(entry.category);
-  const meta = [entry.source, formatTime(entry.createdAt)].filter(Boolean).join(' • ');
   const customIcon = REASON_ICONS[entry.reason];
 
   return (
@@ -137,12 +136,18 @@ function ActivityRow({ entry }: { entry: LedgerEntry }) {
         )}
       </View>
       <View style={styles.rowMain}>
-        <Text style={styles.rowTitle} numberOfLines={1}>
-          {entry.reason}
-        </Text>
-        <Text style={styles.rowMeta} numberOfLines={1}>
-          {meta}
-        </Text>
+        <Text style={styles.rowTitle}>{entry.reason}</Text>
+        <View style={styles.rowMetaLine}>
+          {entry.source ? (
+            <>
+              <Text style={styles.rowMeta} numberOfLines={1}>
+                {entry.source}
+              </Text>
+              <Text style={styles.rowMeta}> • </Text>
+            </>
+          ) : null}
+          <Text style={styles.rowMeta}>{formatTime(entry.createdAt)}</Text>
+        </View>
       </View>
       <View style={styles.rowAmount}>
         <Text style={[styles.amount, { color: earned ? '#2E7D32' : '#BA1A1A' }]}>
@@ -574,6 +579,7 @@ const styles = StyleSheet.create({
   },
   rowIconImage: { width: 20, height: 19 },
   rowMain: { flex: 1, gap: 4 },
+  rowMetaLine: { flexDirection: 'row', alignItems: 'center' },
   rowTitle: {
     fontFamily: 'Manrope',
     fontWeight: '700',
