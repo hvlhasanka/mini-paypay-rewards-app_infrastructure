@@ -1,14 +1,22 @@
 import { BlurView } from 'expo-blur';
-import { Alert, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Image, Platform, Pressable, StatusBar, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { useOnlineStatus } from '@/hooks/use-online-status';
 import { useAppSelector } from '@/store/hooks';
 
 export default function ProfileHeader() {
   const user = useAppSelector((s) => s.auth.user);
+  const isOnline = useOnlineStatus();
+  const topPad = isOnline
+    ? (Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0)
+    : 10;
+  const edges: ('top' | 'left' | 'right')[] = isOnline
+    ? ['top', 'left', 'right']
+    : ['left', 'right'];
 
   return (
-    <SafeAreaView edges={['top', 'left', 'right']} style={styles.safe}>
+    <SafeAreaView edges={edges} style={[styles.safe, { paddingTop: topPad }]}>
       <BlurView intensity={50} tint="light" style={StyleSheet.absoluteFill} />
       <View style={styles.row}>
         <Image source={require('@/assets/icons/user.png')} style={styles.avatar} />

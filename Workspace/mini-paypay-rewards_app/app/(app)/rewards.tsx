@@ -1,8 +1,8 @@
 import { useHeaderHeight } from '@react-navigation/elements';
+import axios from 'axios';
 import { BlurView } from 'expo-blur';
 import { useEffect, useRef, useState } from 'react';
 import {
-  Alert,
   Animated,
   FlatList,
   Image,
@@ -13,7 +13,12 @@ import {
   type DimensionValue,
   type ViewStyle,
 } from 'react-native';
-
+import ConfirmationModal, { type ConfirmationStatus } from '@/components/confirmation-modal';
+import { useCountUp } from '@/hooks/use-count-up';
+import { useOnlineStatus } from '@/hooks/use-online-status';
+import { api } from '@/services/api';
+import { refreshMe } from '@/store/authSlice';
+import { fetchLedger } from '@/store/ledgerSlice';
 import {
   fetchRewards,
   setCategory,
@@ -100,28 +105,63 @@ function Badge({ label, tint, bg }: { label: string; tint: string; bg: string })
   );
 }
 
-function RewardCard({ reward, balance }: { reward: Reward; balance: number }) {
+const MIN_SKELETON_MS = 1200;
+
+function RewardCard({
+  reward,
+  balance,
+  isOnline,
+  onClaim,
+}: {
+  reward: Reward;
+  balance: number;
+  isOnline: boolean;
+  onClaim: (reward: Reward) => void;
+}) {
   const soldOut = reward.stockRemaining <= 0;
   const insufficient = balance < reward.pointsCost;
   const locked = !soldOut && insufficient;
+  const claimDisabled = locked || soldOut || !isOnline;
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const loadStartRef = useRef<number>(Date.now());
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  const finishLoad = () => {
+    const elapsed = Date.now() - loadStartRef.current;
+    const remaining = Math.max(MIN_SKELETON_MS - elapsed, 0);
+    if (remaining === 0) {
+      setImageLoaded(true);
+    } else {
+      timeoutRef.current = setTimeout(() => setImageLoaded(true), remaining);
+    }
+  };
 
   const handlePress = () => {
-    if (locked) return;
-    Alert.alert('Coming soon!');
+    if (claimDisabled) return;
+    onClaim(reward);
   };
 
   return (
     <View style={styles.card}>
       <View style={styles.imageWrap}>
-        {reward.imageUrl ? (
+        {reward.imageUrl && !imageError ? (
           <>
             <Image
               source={{ uri: reward.imageUrl }}
               style={styles.image}
               resizeMode="cover"
-              onLoad={() => setImageLoaded(true)}
-              onError={() => setImageLoaded(true)}
+              onLoad={finishLoad}
+              onError={() => {
+                setImageError(true);
+                finishLoad();
+              }}
             />
             {!imageLoaded ? (
               <View style={StyleSheet.absoluteFillObject}>
@@ -153,8 +193,12 @@ function RewardCard({ reward, balance }: { reward: Reward; balance: number }) {
             <Text style={styles.costValue}>{formatPoints(reward.pointsCost)} pts</Text>
           </View>
           <Pressable
-            style={[styles.cta, soldOut && styles.ctaSoldOut, locked && styles.ctaLocked]}
-            disabled={locked}
+            style={[
+              styles.cta,
+              soldOut && styles.ctaSoldOut,
+              (locked || (claimDisabled && !soldOut)) && styles.ctaLocked,
+            ]}
+            disabled={claimDisabled}
             onPress={handlePress}
           >
             <Text
@@ -198,13 +242,62 @@ export default function RewardsScreen() {
   const dispatch = useAppDispatch();
   const { items, category, status, error } = useAppSelector((s) => s.rewards);
   const balance = useAppSelector((s) => s.auth.balance);
+  const animatedBalance = useCountUp(balance, 2500, 'down');
+  const isOnline = useOnlineStatus();
   const headerHeight = useHeaderHeight();
 
   const isInitialLoad = status === 'loading' && items.length === 0;
 
+  // Redeem confirmation modal state
+  const [selectedReward, setSelectedReward] = useState<Reward | null>(null);
+  const [redeemStatus, setRedeemStatus] = useState<ConfirmationStatus>('confirm');
+  const [redeemError, setRedeemError] = useState<string | undefined>(undefined);
+  const idempotencyKeyRef = useRef<string | null>(null);
+
   useEffect(() => {
     dispatch(fetchRewards(category));
   }, [dispatch, category]);
+
+  const openClaim = (reward: Reward) => {
+    setSelectedReward(reward);
+    setRedeemStatus('confirm');
+    setRedeemError(undefined);
+    idempotencyKeyRef.current = `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+  };
+
+  const closeClaim = () => {
+    setSelectedReward(null);
+    setRedeemStatus('confirm');
+    setRedeemError(undefined);
+    idempotencyKeyRef.current = null;
+  };
+
+  const confirmClaim = async () => {
+    if (!selectedReward || !idempotencyKeyRef.current || !isOnline) return;
+    setRedeemStatus('loading');
+    try {
+      await api.post(
+        `/rewards/${selectedReward.id}/redeem`,
+        {},
+        { headers: { 'X-Idempotency-Key': idempotencyKeyRef.current } },
+      );
+
+      await Promise.all([dispatch(refreshMe()), dispatch(fetchLedger())]);
+      dispatch(fetchRewards(category));
+      setRedeemStatus('success');
+    } catch (err) {
+      if (axios.isAxiosError(err) && !err.response) {
+        closeClaim();
+        return;
+      }
+      const msg = axios.isAxiosError(err)
+        ? ((err.response?.data as { error?: string } | undefined)?.error ??
+          'Could not complete the redemption. Please try again.')
+        : 'Could not complete the redemption. Please try again.';
+      setRedeemError(msg);
+      setRedeemStatus('error');
+    }
+  };
 
   const ListHeader = (
     <>
@@ -214,7 +307,7 @@ export default function RewardsScreen() {
           {isInitialLoad ? (
             <Skeleton width={160} height={36} />
           ) : (
-            <Text style={styles.balanceValue}>{formatPoints(balance)}</Text>
+            <Text style={styles.balanceValue}>{formatPoints(animatedBalance)}</Text>
           )}
           <Image source={require('@/assets/icons/star.png')} style={styles.starIcon} resizeMode="contain" />
         </View>
@@ -261,19 +354,60 @@ export default function RewardsScreen() {
   }
 
   return (
-    <FlatList
-      data={items}
-      keyExtractor={(r) => r.id}
-      renderItem={({ item }) => <RewardCard reward={item} balance={balance} />}
-      ListHeaderComponent={ListHeader}
-      ListEmptyComponent={
-        <View style={styles.loading}>
-          <Text style={styles.emptyText}>No rewards available.</Text>
-        </View>
-      }
-      contentContainerStyle={[styles.listContent, { paddingTop: headerHeight + 32 }]}
-      showsVerticalScrollIndicator={false}
-    />
+    <>
+      <FlatList
+        data={items}
+        keyExtractor={(r) => r.id}
+        renderItem={({ item }) => (
+          <RewardCard
+            reward={item}
+            balance={balance}
+            isOnline={isOnline}
+            onClaim={openClaim}
+          />
+        )}
+        ListHeaderComponent={ListHeader}
+        ListEmptyComponent={
+          <View style={styles.loading}>
+            <Text style={styles.emptyText}>No rewards available.</Text>
+          </View>
+        }
+        contentContainerStyle={[styles.listContent, { paddingTop: headerHeight + 32 }]}
+        showsVerticalScrollIndicator={false}
+      />
+
+      <ConfirmationModal
+        visible={selectedReward !== null}
+        status={redeemStatus}
+        title={selectedReward?.name ?? ''}
+        message={selectedReward?.description}
+        heroImage={selectedReward?.imageUrl ? { uri: selectedReward.imageUrl } : null}
+        detailLabel="Cost"
+        detailValue={
+          selectedReward
+            ? `${selectedReward.pointsCost.toLocaleString('en-US')} pts`
+            : undefined
+        }
+        confirmLabel="Confirm Redeem"
+        successTitle="Redeemed!"
+        successMessage={
+          selectedReward
+            ? `${selectedReward.name} has been added to your rewards.`
+            : undefined
+        }
+        successDetailLabel="Balance deducted by"
+        successDetailValue={
+          selectedReward
+            ? `${selectedReward.pointsCost.toLocaleString('en-US')} pts`
+            : undefined
+        }
+        errorTitle="Redemption failed"
+        errorMessage={redeemError}
+        errorActionLabel="Try again"
+        onConfirm={confirmClaim}
+        onClose={closeClaim}
+      />
+    </>
   );
 }
 

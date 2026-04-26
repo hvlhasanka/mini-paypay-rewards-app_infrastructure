@@ -1,8 +1,26 @@
 import { Router, type Request, type Response } from 'express';
+import { z } from 'zod';
 import { prisma } from '../lib/prisma.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
+
+const pushTokenSchema = z.object({
+  pushToken: z.string().min(1).max(200).nullable(),
+});
+
+router.post('/me/push-token', requireAuth, async (req: Request, res: Response) => {
+  const parsed = pushTokenSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: 'Invalid push token' });
+    return;
+  }
+  await prisma.user.update({
+    where: { id: req.user!.sub },
+    data: { pushToken: parsed.data.pushToken },
+  });
+  res.json({ ok: true });
+});
 
 router.get('/me', requireAuth, async (req: Request, res: Response) => {
   const userId = req.user!.sub;

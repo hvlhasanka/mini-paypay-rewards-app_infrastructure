@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "verbatimModuleSyntax": false,
+    "types": ["node", "jest"]
+  },
+  "include": ["src/**/*", "src/**/__tests__/**/*"]
+}
