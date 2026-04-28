@@ -337,7 +337,7 @@ Database Schema =>
   ##### 7.3.2. Screen recording on iOS =>
 
   App walkthrough:
-  [Documentation/App-walkthroughs/iOS/app-walkthrough_iOS.mp4](https://github.com/user-attachments/assets/b8d9aa2c-9e35-4c22-9409-2c7e1c5cc97e)
+https://github.com/user-attachments/assets/b8d9aa2c-9e35-4c22-9409-2c7e1c5cc97e
 
   <hr>
 
@@ -380,7 +380,7 @@ Database Schema =>
   ##### 7.3.4. Screen recording on Android =>
 
   App walkthrough:
-  [Documentation/App-walkthroughs/Android/app-walkthrough_Android.mp4](https://github.com/user-attachments/assets/ad5ec5ec-ebfb-4f07-8391-0b79322da7fc)
+https://github.com/user-attachments/assets/ad5ec5ec-ebfb-4f07-8391-0b79322da7fc
 
   #### 7.4. API Documentation -
 
