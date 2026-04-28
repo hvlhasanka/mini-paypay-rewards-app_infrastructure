@@ -338,9 +338,9 @@ Database Schema =>
 
   App walkthrough:
 
-  <p align="center">
+  <div align="center">
     <video src="https://github.com/user-attachments/assets/b8d9aa2c-9e35-4c22-9409-2c7e1c5cc97e" controls width="30%"></video>
-  </p>
+  </div>
 
   <hr>
 
@@ -384,9 +384,9 @@ Database Schema =>
 
   App walkthrough:
 
-  <p align="center">
+  <div align="center">
     <video src="https://github.com/user-attachments/assets/ad5ec5ec-ebfb-4f07-8391-0b79322da7fc" controls width="30%"></video>
-  </p>
+  </div>
 
   #### 7.4. API Documentation -
 
