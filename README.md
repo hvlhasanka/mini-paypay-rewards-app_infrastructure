@@ -58,7 +58,7 @@ Other features include:<br>
 ### 2. System Architecture -
 <p align="center">
   <kbd>
-    <img src="./Documentation/System-Architecture-Diagram/system-architecture-diagram.png" />
+    <img src="./Documentation/System-architecture-diagram/system-architecture-diagram.png" />
   </kbd>
 </p>
 <p align="center">Figure 2.1: System Architecture Diagram</p>
