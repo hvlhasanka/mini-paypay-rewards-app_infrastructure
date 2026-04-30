@@ -207,7 +207,7 @@ export default function LoginScreen() {
 
           <View style={styles.footer}>
             <Text style={styles.footerCopy}>
-              © 2026 SOUKPAY INSTITUTIONAL. ALL RIGHTS RESERVED.
+              © 2026 SOUYPAY INSTITUTIONAL. ALL RIGHTS RESERVED.
             </Text>
             <View style={styles.footerLinks}>
               <Pressable onPress={comingSoon} hitSlop={8}>

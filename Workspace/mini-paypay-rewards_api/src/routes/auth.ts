@@ -9,7 +9,12 @@ const router = Router();
 
 const loginSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1),
+  password: z
+    .string()
+    .min(6, 'Must be at least 6 characters')
+    .regex(/[A-Z]/, 'Must include an uppercase letter')
+    .regex(/\d/, 'Must include a number')
+    .regex(/[^A-Za-z0-9]/, 'Must include a special character'),
 });
 
 router.post('/login', async (req: Request, res: Response) => {
